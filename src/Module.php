@@ -110,7 +110,7 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
             }
         );
 
-        EventAlias::on(
+        Event::on(
             Utilities::class,
             Utilities::EVENT_REGISTER_UTILITY_TYPES,
             function (RegisterComponentTypesEvent $event) {
