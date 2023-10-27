@@ -10,19 +10,31 @@
         <h2>{{ 'Environment Information'|t('cloud') }}</h2>
 
         <table class="data fullwidth">
-            <thead>
-                <tr>
-                    <th>{{ 'Project ID'|t('cloud') }}</th>
-                    <th>{{ 'Environment ID'|t('cloud') }}</th>
-                </tr>
-            </thead>
             <tbody>
                 <tr>
-                    <td><code>{{ getenv('CRAFT_CLOUD_ENVIRONMENT_ID') }}</code></td>
-                    <td><code>{{ getenv('CRAFT_CLOUD_PROJECT_ID') }}</code></td>
+                    <th>{{ 'Project ID'|t('cloud') }}</th>
+                    <td>
+                        <code>{{ getenv('CRAFT_CLOUD_PROJECT_ID') }}</code>
+                        <button class="btn small" data-copy-text="{{ getenv('CRAFT_CLOUD_PROJECT_ID') }}">Copy</button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ 'Environment ID'|t('cloud') }}</th>
+                    <td>
+                        <code>{{ getenv('CRAFT_CLOUD_ENVIRONMENT_ID') }}</code>
+                        <button class="btn small" data-copy-text="{{ getenv('CRAFT_CLOUD_ENVIRONMENT_ID') }}">Copy</button>
+                    </td>
+                </tr>
+                <tr>
+                    <th>{{ 'Build ID'|t('cloud') }}</th>
+                    <td>
+                        <code>{{ getenv('CRAFT_CLOUD_BUILD_ID') }}</code>
+                        <button class="btn small" data-copy-text="{{ getenv('CRAFT_CLOUD_BUILD_ID') }}">Copy</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
+
         <div class="buttons">
             <a class="btn primary" href="https://console.craftcms.com/"> {{ 'Go to Project'|t('cloud') }} &rarr;</a>
             <a class="btn secondary" href="">{{ 'Go to Environment'|t('cloud') }} &rarr;</a>
@@ -32,7 +44,26 @@
     <div class="pane">
         <p>{{ 'It does not appear that you are running on Craft Cloud.'|t('cloud') }}</p>
     </div>
+
     <div class="buttons">
         <a class="btn" href="https://craftcms.com/cloud" rel="noopener noreferrer">{{ 'Learn about Cloud'|t('cloud') }} &rarr;</a>
     </div>
 {% endif %}
+
+{% js %}
+    const $copyButtons = document.querySelectorAll('[data-copy-text]');
+
+    function handleCopy(e) {
+        window.navigator.clipboard.writeText(e.target.dataset.copyText)
+            .then(function () {
+                Craft.cp.displayNotice('Copied!');
+            })
+            .catch(function () {
+                Craft.cp.displayError('Failed to copy.');
+            });
+    }
+
+    $copyButtons.forEach(function($c) {
+        $c.addEventListener('click', handleCopy);
+    });
+{% endjs %}
