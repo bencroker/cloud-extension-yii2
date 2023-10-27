@@ -1,0 +1,35 @@
+{% if isCraftCloud %}
+    <div class="pane">
+        <p>
+            <span class="checkmark-icon"></span>
+            {{ 'You are running on Craft Cloud!'|t('cloud') }}
+        </p>
+    </div>
+
+    <div class="pane">
+        <h2>{{ 'Environment Information'|t('cloud') }}</h2>
+
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ 'Project ID'|t('cloud') }}</th>
+                    <th>{{ 'Environment ID'|t('cloud') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>{{ getenv('CRAFT_CLOUD_ENVIRONMENT_ID') }}</code></td>
+                    <td><code>{{ getenv('CRAFT_CLOUD_PROJECT_ID') }}</code></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="buttons">
+            <a class="btn primary" href="https://console.craftcms.com/"> {{ 'Go to Project'|t('cloud') }} &rarr;</a>
+            <a class="btn secondary" href="">{{ 'Go to Environment'|t('cloud') }} &rarr;</a>
+        </div>
+    </div>
+{% else %}
+    <div class="pane">
+        <p>{{ 'It does not appear that you are running on Craft Cloud.'|t('cloud') }}</p>
+    </div>
+{% endif %}

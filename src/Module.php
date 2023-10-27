@@ -7,6 +7,7 @@ use craft\base\Event;
 use craft\cloud\fs\AssetsFs;
 use craft\cloud\fs\StorageFs;
 use craft\cloud\fs\TmpFs;
+use craft\cloud\utilities\Cloud;
 use craft\cloud\web\assets\uploader\UploaderAsset;
 use craft\console\Application as ConsoleApplication;
 use craft\debug\Module as DebugModule;
@@ -19,6 +20,7 @@ use craft\imagetransforms\ImageTransformer as CraftImageTransformerAlias;
 use craft\log\Dispatcher;
 use craft\services\Fs as FsService;
 use craft\services\ImageTransforms;
+use craft\services\Utilities;
 use craft\web\Application as WebApplication;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\View;
@@ -105,6 +107,14 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
             FsService::EVENT_REGISTER_FILESYSTEM_TYPES,
             static function(RegisterComponentTypesEvent $event) {
                 $event->types[] = AssetsFs::class;
+            }
+        );
+
+        EventAlias::on(
+            Utilities::class,
+            Utilities::EVENT_REGISTER_UTILITY_TYPES,
+            function (RegisterComponentTypesEvent $event) {
+                $event->types[] = Cloud::class;
             }
         );
 
