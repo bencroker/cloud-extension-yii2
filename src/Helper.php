@@ -11,6 +11,7 @@ use craft\cloud\runtime\Runtime;
 use craft\db\Table;
 use craft\helpers\App;
 use craft\helpers\ConfigHelper;
+use craft\mutex\NullMutex;
 use craft\queue\Queue as CraftQueue;
 use yii\web\DbSession;
 
@@ -85,12 +86,7 @@ SQL;
             return Craft::createObject($config);
         };
 
-        $config['components']['mutex'] = function() {
-            return Craft::createObject([
-                'class' => Mutex::class,
-                'namePrefix' => Module::getInstance()->getConfig()->environmentId,
-            ]);
-        };
+        $config['components']['mutex'] = NullMutex::class;
 
         $config['components']['queue'] = function() {
             $ttr = Runtime::MAX_EXECUTION_SECONDS - 1;
