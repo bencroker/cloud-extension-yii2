@@ -197,11 +197,11 @@ class Module extends \yii\base\Module implements \yii\base\BootstrapInterface
             ],
         );
 
-        Event::on(
-            WebResponse::class,
-            YiiWebResponse::EVENT_BEFORE_SEND,
-            [$this->get('mutex'), 'handleBeforeSend'],
-        );
+        // Event::on(
+        //     WebResponse::class,
+        //     YiiWebResponse::EVENT_BEFORE_SEND,
+        //     [$this->get('mutex'), 'handleBeforeSend'],
+        // );
 
 
         $this->setComponents([
