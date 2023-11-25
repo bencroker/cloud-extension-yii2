@@ -44,15 +44,11 @@ class Mutex extends \yii\mutex\Mutex
     protected function acquireLock($name, $timeout = 0): bool
     {
         return $this->retryAcquire($timeout, function() use ($name) {
-            if ($this->client->keyExists($this->name, $name)->asSuccess()) {
-                return false;
-            }
-
-            return (bool) $this->client->set(
+            return (bool) $this->client->setIfNotExists(
                 $this->name,
                 $name,
                 (string) time(),
-            )->asSuccess();
+            )->asStored();
         });
     }
 
