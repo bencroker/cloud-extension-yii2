@@ -14,7 +14,7 @@ class Mutex extends \yii\mutex\Mutex
     use RetryAcquireTrait;
 
     protected int $defaultTtlSeconds = 24 * 60 * 60;
-    public string $cacheName;
+    public string $name;
     public CacheClient $client;
 
     public function __construct($config = [])
@@ -29,7 +29,7 @@ class Mutex extends \yii\mutex\Mutex
     protected static function createClient(int $defaultTtlSeconds): CacheClient
     {
         $configuration = Laptop::latest();
-        $authProvider = CredentialProvider::fromEnvironmentVariable('MOMENTO_AUTH_TOKEN');
+        $authProvider = CredentialProvider::fromEnvironmentVariable('CRAFT_CLOUD_MUTEX_AUTH_TOKEN');
 
         return new CacheClient(
             $configuration,
@@ -44,12 +44,12 @@ class Mutex extends \yii\mutex\Mutex
     protected function acquireLock($name, $timeout = 0): bool
     {
         return $this->retryAcquire($timeout, function() use ($name) {
-            if ($this->client->keyExists($this->cacheName, $name)->asSuccess()) {
+            if ($this->client->keyExists($this->name, $name)->asSuccess()) {
                 return false;
             }
 
             return (bool) $this->client->set(
-                $this->cacheName,
+                $this->name,
                 $name,
                 (string) time(),
             )->asSuccess();
@@ -62,7 +62,7 @@ class Mutex extends \yii\mutex\Mutex
     protected function releaseLock($name): bool
     {
         return (bool) $this->client->delete(
-            $this->cacheName,
+            $this->name,
             $name,
         )->asSuccess();
     }

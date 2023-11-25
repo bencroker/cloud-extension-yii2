@@ -94,6 +94,7 @@ SQL;
                 ? Craft::createObject([
                     'class' => Mutex::class,
                     'namePrefix' => Module::getInstance()->getConfig()->environmentId . ':',
+                    'name' => App::env('CRAFT_CLOUD_MUTEX_NAME'),
                 ])
                 : $config['components']['mutex'];
 
