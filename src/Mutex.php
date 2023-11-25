@@ -2,42 +2,58 @@
 
 namespace craft\cloud;
 
-use Craft;
 use craft\mutex\MutexTrait;
-use GuzzleHttp\Psr7\Request;
-use Illuminate\Support\Collection;
-use yii\base\Exception;
+use Momento\Auth\CredentialProvider;
+use Momento\Cache\CacheClient;
+use Momento\Config\Configurations\Laptop;
+use yii\mutex\RetryAcquireTrait;
 
 class Mutex extends \yii\mutex\Mutex
 {
     use MutexTrait;
+    use RetryAcquireTrait;
+
+    protected int $defaultTtlSeconds = 24 * 60 * 60;
+    public string $cacheName;
+    public CacheClient $client;
+
+    public function __construct($config = [])
+    {
+        $config += [
+            'client' => $this->createClient($this->defaultTtlSeconds),
+        ];
+
+        parent::__construct($config);
+    }
+
+    protected static function createClient(int $defaultTtlSeconds): CacheClient
+    {
+        $configuration = Laptop::latest();
+        $authProvider = CredentialProvider::fromEnvironmentVariable('MOMENTO_AUTH_TOKEN');
+
+        return new CacheClient(
+            $configuration,
+            $authProvider,
+            $defaultTtlSeconds,
+        );
+    }
 
     /**
      * @inheritDoc
      */
     protected function acquireLock($name, $timeout = 0): bool
     {
-        $url = Module::getInstance()->getConfig()->getPreviewDomainUrl();
-        if (!$url) {
-            throw new Exception();
-        }
+        return $this->retryAcquire($timeout, function() use ($name) {
+            if ($this->client->keyExists($this->cacheName, $name)->asSuccess()) {
+                return false;
+            }
 
-        $headers = Collection::make([
-            HeaderEnum::MUTEX_ACQUIRE_LOCK->value => $name,
-        ]);
-
-        try {
-            $request = new Request('HEAD', (string) $url, $headers->all());
-            $context = Helper::createSigningContext($headers->keys());
-            $context->signer()->sign($request);
-            Craft::createGuzzleClient()->send($request);
-        } catch (\Throwable $e) {
-            Craft::error('Unable to acquire mutex lock: ' . $e->getMessage());
-
-            return false;
-        }
-
-        return true;
+            return (bool) $this->client->set(
+                $this->cacheName,
+                $name,
+                (string) time(),
+            )->asSuccess();
+        });
     }
 
     /**
@@ -45,27 +61,9 @@ class Mutex extends \yii\mutex\Mutex
      */
     protected function releaseLock($name): bool
     {
-        $url = Module::getInstance()->getConfig()->getPreviewDomainUrl();
-
-        if (!$url) {
-            throw new Exception();
-        }
-
-        $headers = Collection::make([
-            HeaderEnum::MUTEX_RELEASE_LOCK->value => $name,
-        ]);
-
-        try {
-            $request = new Request('HEAD', (string) $url, $headers->all());
-            $context = Helper::createSigningContext($headers->keys());
-            $context->signer()->sign($request);
-            Craft::createGuzzleClient()->send($request);
-        } catch (\Throwable $e) {
-            Craft::error('Unable to release mutex lock: ' . $e->getMessage());
-
-            return false;
-        }
-
-        return true;
+        return (bool) $this->client->delete(
+            $this->cacheName,
+            $name,
+        )->asSuccess();
     }
 }
