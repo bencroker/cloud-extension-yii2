@@ -29,7 +29,7 @@ class Mutex extends \yii\mutex\Mutex
     protected static function createClient(int $defaultTtlSeconds): CacheClient
     {
         $configuration = Laptop::latest();
-        $authProvider = CredentialProvider::fromEnvironmentVariable('CRAFT_CLOUD_MUTEX_AUTH_TOKEN');
+        $authProvider = CredentialProvider::fromEnvironmentVariable('CRAFT_CLOUD_MUTEX_API_KEY');
 
         return new CacheClient(
             $configuration,
