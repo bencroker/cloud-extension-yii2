@@ -34,7 +34,6 @@ class SqsHandler extends \Bref\Event\Sqs\SqsHandler
                     throw new RuntimeException('The SQS message does not contain a job ID.');
                 }
 
-                echo "Executing job: #$jobId";
 
                 $cliHandler->handle([
                     'command' => "cloud/queue/exec {$jobId}",
