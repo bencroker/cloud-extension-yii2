@@ -92,7 +92,7 @@ class QueueController extends Controller
         return ExitCode::OK;
     }
 
-    public function actionTestJob(): int
+    public function actionPushTestJob(): int
     {
         for ($i = 0; $i < $this->count; $i++) {
             $job = new TestJob([

@@ -7,11 +7,11 @@ use craft\cache\DbCache;
 use craft\cloud\fs\BuildArtifactsFs;
 use craft\cloud\Helper as CloudHelper;
 use craft\cloud\queue\Queue;
+use craft\cloud\queue\SqsQueue;
 use craft\cloud\runtime\Runtime;
 use craft\db\Table;
 use craft\helpers\App;
 use craft\helpers\ConfigHelper;
-use craft\queue\Queue as CraftQueue;
 use HttpSignatures\Context;
 use Illuminate\Support\Collection;
 use yii\di\Instance;
@@ -105,10 +105,10 @@ SQL;
             $ttr = Runtime::MAX_EXECUTION_SECONDS - 1;
 
             return Craft::createObject([
-                'class' => CraftQueue::class,
+                'class' => Queue::class,
                 'ttr' => $ttr,
                 'proxyQueue' => Module::getInstance()->getConfig()->useQueue ? [
-                    'class' => Queue::class,
+                    'class' => SqsQueue::class,
                     'ttr' => $ttr,
                     'url' => Module::getInstance()->getConfig()->sqsUrl,
                     'region' => Module::getInstance()->getConfig()->getRegion(),

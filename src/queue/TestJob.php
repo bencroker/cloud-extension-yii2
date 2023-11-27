@@ -2,8 +2,8 @@
 
 namespace craft\cloud\queue;
 
+use Craft;
 use craft\helpers\Console;
-use craft\i18n\Translation;
 use craft\queue\BaseJob;
 use yii\console\Exception;
 
@@ -18,7 +18,7 @@ class TestJob extends BaseJob
      */
     protected function defaultDescription(): ?string
     {
-        return Translation::prep('app', 'Test Job');
+        return Craft::t('app', 'Test Job');
     }
 
     /**

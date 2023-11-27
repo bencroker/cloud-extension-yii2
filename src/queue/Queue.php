@@ -2,14 +2,26 @@
 
 namespace craft\cloud\queue;
 
-class Queue extends \yii\queue\sqs\Queue
+use Craft;
+
+class Queue extends \craft\queue\Queue
 {
-    /**
-     * TODO: remove this once released: https://github.com/yiisoft/yii2-queue/pull/502
-     */
-    protected function pushMessage($message, $ttr, $delay, $priority)
+    public function executeJob(?string $id = null): bool
     {
-        /** @phpstan-ignore-next-line  */
-        return parent::pushMessage($message, (string) $ttr, $delay, $priority);
+        Craft::$app->onAfterRequest(function() use ($id) {
+            $this->afterTransactions(fn() => parent::executeJob($id));
+        });
+
+        return true;
+    }
+
+    protected function afterTransactions(callable $callback, int $timeoutSeconds = 1): mixed
+    {
+        if (Craft::$app->getDb()->getTransaction() !== null) {
+            sleep($timeoutSeconds);
+            return $this->afterTransactions($callback, $timeoutSeconds);
+        }
+
+        return $callback();
     }
 }
