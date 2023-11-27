@@ -6,6 +6,7 @@ use Craft;
 use craft\cloud\queue\TestJob;
 use craft\console\Controller;
 use craft\queue\Queue;
+use yii\console\Exception;
 use yii\console\ExitCode;
 use yii\queue\ExecEvent;
 
@@ -79,14 +80,18 @@ class QueueController extends Controller
 
     public function actionExec(string $jobId): int
     {
-        $this->do("Executing job #$jobId", function() use ($jobId) {
-            /** @var Queue $queue */
-            $queue = Craft::$app->getQueue();
-            $jobFound = $queue->executeJob($jobId);
+        Craft::$app->onAfterRequest(function() use ($jobId) {
+            $this->afterTransactions(function() use ($jobId) {
+                $this->do("Queuing job #$jobId for execution", function() use ($jobId) {
+                    /** @var Queue $queue */
+                    $queue = Craft::$app->getQueue();
+                    $jobFound = $queue->executeJob($jobId);
 
-            if (!$jobFound) {
-                Craft::warning("Job not found: {$jobId}");
-            }
+                    if (!$jobFound) {
+                        throw new Exception("Job not found: {$jobId}");
+                    }
+                });
+            });
         });
 
         return ExitCode::OK;
@@ -111,5 +116,15 @@ class QueueController extends Controller
         }
 
         return ExitCode::OK;
+    }
+
+    protected function afterTransactions(callable $callback, int $timeoutSeconds = 1): mixed
+    {
+        if (Craft::$app->getDb()->getTransaction() !== null) {
+            sleep($timeoutSeconds);
+            return $this->afterTransactions($callback, $timeoutSeconds);
+        }
+
+        return $callback();
     }
 }
