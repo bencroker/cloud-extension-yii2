@@ -87,7 +87,7 @@ class QueueController extends Controller
             $jobFound = $queue->executeJob($jobId);
 
             if (!$jobFound) {
-                Craft::warning("Job not found: {$jobId}");
+                throw new Exception("Job not found: {$jobId}");
             }
         });
 
