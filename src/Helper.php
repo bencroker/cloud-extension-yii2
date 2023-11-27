@@ -115,7 +115,6 @@ SQL;
                     'url' => Module::getInstance()->getConfig()->sqsUrl,
                     'region' => Module::getInstance()->getConfig()->getRegion(),
                     'ttr' => $ttr,
-                    'mutex' => $mutex,
                 ] : null,
             ]);
         };
