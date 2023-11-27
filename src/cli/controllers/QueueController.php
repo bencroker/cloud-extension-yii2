@@ -80,18 +80,15 @@ class QueueController extends Controller
 
     public function actionExec(string $jobId): int
     {
-        Craft::$app->onAfterRequest(function() use ($jobId) {
-            $this->afterTransactions(function() use ($jobId) {
-                $this->do("Queuing job #$jobId for execution", function() use ($jobId) {
-                    /** @var Queue $queue */
-                    $queue = Craft::$app->getQueue();
-                    $jobFound = $queue->executeJob($jobId);
+        $this->do("Executing job #$jobId", function() use ($jobId) {
+            sleep(5);
+            /** @var Queue $queue */
+            $queue = Craft::$app->getQueue();
+            $jobFound = $queue->executeJob($jobId);
 
-                    if (!$jobFound) {
-                        throw new Exception("Job not found: {$jobId}");
-                    }
-                });
-            });
+            if (!$jobFound) {
+                Craft::warning("Job not found: {$jobId}");
+            }
         });
 
         return ExitCode::OK;
