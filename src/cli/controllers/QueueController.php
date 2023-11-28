@@ -46,7 +46,7 @@ class QueueController extends Controller
     public function options($actionID): array
     {
         return array_merge(parent::options($actionID), match ($actionID) {
-            'test-job' => [
+            'push-test-job' => [
                 'message',
                 'run',
                 'throw',
