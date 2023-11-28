@@ -2,14 +2,20 @@
 
 namespace craft\cloud\queue;
 
+use Craft;
+
 class SqsQueue extends \yii\queue\sqs\Queue
 {
-    /**
-     * TODO: remove this once released: https://github.com/yiisoft/yii2-queue/pull/502
-     */
-    protected function pushMessage($message, $ttr, $delay, $priority)
+    protected function pushMessage($message, $ttr, $delay, $priority): string
     {
-        /** @phpstan-ignore-next-line  */
-        return parent::pushMessage($message, (string) $ttr, $delay, $priority);
+        Craft::$app->onAfterRequest(fn() =>
+            /**
+             * https://github.com/yiisoft/yii2-queue/pull/502
+             * @phpstan-ignore-next-line
+             */
+            parent::pushMessage($message, (string) $ttr, $delay, $priority)
+        );
+
+        return '';
     }
 }

@@ -113,14 +113,4 @@ class QueueController extends Controller
 
         return ExitCode::OK;
     }
-
-    protected function afterTransactions(callable $callback, int $timeoutSeconds = 1): mixed
-    {
-        if (Craft::$app->getDb()->getTransaction() !== null) {
-            sleep($timeoutSeconds);
-            return $this->afterTransactions($callback, $timeoutSeconds);
-        }
-
-        return $callback();
-    }
 }
