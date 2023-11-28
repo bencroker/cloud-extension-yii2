@@ -103,12 +103,11 @@ SQL;
         };
 
         $config['components']['queue'] = function() {
-            $ttr = Runtime::MAX_EXECUTION_SECONDS - 2;
+            $ttr = Runtime::MAX_EXECUTION_SECONDS - 1;
 
             return Craft::createObject([
                 'class' => CraftQueue::class,
                 'ttr' => $ttr,
-                //'mutex' => NullMutex::class,
                 'proxyQueue' => Module::getInstance()->getConfig()->useQueue ? [
                     'class' => SqsQueue::class,
                     'url' => Module::getInstance()->getConfig()->sqsUrl,
