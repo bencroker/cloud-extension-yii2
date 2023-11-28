@@ -13,7 +13,7 @@ class SqsQueue extends \yii\queue\sqs\Queue
              * https://github.com/yiisoft/yii2-queue/pull/502
              * @phpstan-ignore-next-line
              */
-            parent::pushMessage($message, (string) $ttr, $delay, $priority)
+            parent::pushMessage($message, (string) $ttr, $delay, null)
         );
 
         return '';
