@@ -90,15 +90,11 @@ SQL;
         };
 
         $config['components']['mutex'] = function() use ($config) {
-            $mutex = Module::getInstance()->getConfig()->useMutex
-                ? Craft::createObject([
-                    'class' => Mutex::class,
-                    'namePrefix' => Module::getInstance()->getConfig()->environmentId . ':',
-                    'name' => App::env('CRAFT_CLOUD_MUTEX_NAME'),
-                ])
-                : $config['components']['mutex'];
-
-            return Instance::ensure($mutex, YiiMutex::class);
+            return Craft::createObject([
+                'class' => Mutex::class,
+                'namePrefix' => Module::getInstance()->getConfig()->environmentId . ':',
+                'name' => App::env('CRAFT_CLOUD_MUTEX_NAME'),
+            ]);
         };
 
         $config['components']['queue'] = function() {
