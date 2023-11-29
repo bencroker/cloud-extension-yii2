@@ -11,7 +11,6 @@ use craft\cloud\runtime\Runtime;
 use craft\db\Table;
 use craft\helpers\App;
 use craft\helpers\ConfigHelper;
-use craft\mutex\NullMutex;
 use craft\queue\Queue as CraftQueue;
 use HttpSignatures\Context;
 use Illuminate\Support\Collection;
