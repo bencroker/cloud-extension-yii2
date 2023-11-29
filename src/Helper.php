@@ -11,6 +11,7 @@ use craft\cloud\runtime\Runtime;
 use craft\db\Table;
 use craft\helpers\App;
 use craft\helpers\ConfigHelper;
+use craft\mutex\Mutex;
 use craft\queue\Queue as CraftQueue;
 use HttpSignatures\Context;
 use Illuminate\Support\Collection;
@@ -134,7 +135,7 @@ SQL;
                 'hmac' => Module::getInstance()->getConfig()->cdnSigningKey,
             ],
             'algorithm' => 'hmac-sha256',
-            'headers' => $headers->push('host')->all(),
+            'headers' => $headers->push('(request-target)')->all(),
         ]);
     }
 }
