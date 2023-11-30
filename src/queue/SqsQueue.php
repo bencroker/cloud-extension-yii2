@@ -3,6 +3,7 @@
 namespace craft\cloud\queue;
 
 use Craft;
+use samdark\log\PsrMessage;
 
 class SqsQueue extends \yii\queue\sqs\Queue
 {
@@ -19,6 +20,17 @@ class SqsQueue extends \yii\queue\sqs\Queue
          * the job will exist and be indefinitely pending.
          */
         Craft::$app->onAfterRequest(function() use ($message, $ttr, $delay) {
+            Craft::error(new PsrMessage('SQS request', [
+                'QueueUrl' => $this->url,
+                'MessageBody' => $message,
+                'DelaySeconds' => $delay,
+                'MessageAttributes' => [
+                    'TTR' => [
+                        'DataType' => 'Number',
+                        'StringValue' => $ttr,
+                    ],
+                ],
+            ]));
 
             /**
              * @phpstan-ignore-next-line
