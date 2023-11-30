@@ -19,6 +19,8 @@ class SqsQueue extends \yii\queue\sqs\Queue
                     'StringValue' => $ttr,
                 ],
             ],
+            'state' => Craft::$app->state,
+            'activeTransaction' => Craft::$app->getDb()->getTransaction()->isActive,
         ]));
 
         /**
@@ -42,6 +44,8 @@ class SqsQueue extends \yii\queue\sqs\Queue
                         'StringValue' => $ttr,
                     ],
                 ],
+                'state' => Craft::$app->state,
+                'activeTransaction' => Craft::$app->getDb()->getTransaction()->isActive,
             ]));
 
             /**
