@@ -17,10 +17,9 @@ class EventHandler implements Handler
 
     public function handle(mixed $event, Context $context)
     {
-        echo print_r($event, true);
-
         // is this a sqs event?
         if (isset($event['Records'])) {
+            echo print_r($event, true);
             return (new SqsHandler())->handle($event, $context);
         }
 
