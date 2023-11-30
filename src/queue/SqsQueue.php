@@ -9,6 +9,18 @@ class SqsQueue extends \yii\queue\sqs\Queue
 {
     protected function pushMessage($message, $ttr, $delay, $priority): string
     {
+        Craft::error(new PsrMessage('SQS request on pushMessage', [
+            'QueueUrl' => $this->url,
+            'MessageBody' => $message,
+            'DelaySeconds' => $delay,
+            'MessageAttributes' => [
+                'TTR' => [
+                    'DataType' => 'Number',
+                    'StringValue' => $ttr,
+                ],
+            ],
+        ]));
+
         /**
          * Delay pushing to SQS until after request is processed.
          *
@@ -20,7 +32,7 @@ class SqsQueue extends \yii\queue\sqs\Queue
          * the job will exist and be indefinitely pending.
          */
         Craft::$app->onAfterRequest(function() use ($message, $ttr, $delay) {
-            Craft::error(new PsrMessage('SQS request', [
+            Craft::error(new PsrMessage('SQS request on onAfterRequest', [
                 'QueueUrl' => $this->url,
                 'MessageBody' => $message,
                 'DelaySeconds' => $delay,
