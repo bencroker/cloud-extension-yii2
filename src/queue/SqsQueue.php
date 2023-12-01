@@ -9,22 +9,8 @@ class SqsQueue extends \yii\queue\sqs\Queue
 {
     protected function pushMessage($message, $ttr, $delay, $priority): string
     {
-        Craft::error(new PsrMessage('SQS request on pushMessage', [
-            'QueueUrl' => $this->url,
-            'MessageBody' => $message,
-            'DelaySeconds' => $delay,
-            'MessageAttributes' => [
-                'TTR' => [
-                    'DataType' => 'Number',
-                    'StringValue' => $ttr,
-                ],
-            ],
-            'state' => Craft::$app->state,
-            'activeTransaction' => Craft::$app->getDb()->getTransaction()->isActive,
-        ]));
-
         /**
-         * Delay pushing to SQS until after request is processed.
+         * Delay pushing to SQS until after transaction.
          *
          * Without this, a job might be pushed to SQS from within a DB
          * transaction and send back to Craft for handling before the
@@ -33,21 +19,7 @@ class SqsQueue extends \yii\queue\sqs\Queue
          * will consider the job processed. Once the transaction ends,
          * the job will exist and be indefinitely pending.
          */
-        Craft::$app->onAfterRequest(function() use ($message, $ttr, $delay) {
-            Craft::error(new PsrMessage('SQS request on onAfterRequest', [
-                'QueueUrl' => $this->url,
-                'MessageBody' => $message,
-                'DelaySeconds' => $delay,
-                'MessageAttributes' => [
-                    'TTR' => [
-                        'DataType' => 'Number',
-                        'StringValue' => $ttr,
-                    ],
-                ],
-                'state' => Craft::$app->state,
-                'activeTransaction' => Craft::$app->getDb()->getTransaction()->isActive,
-            ]));
-
+        Craft::$app->getDb()->onAfterTransaction(function() use ($message, $ttr, $delay) {
             /**
              * @phpstan-ignore-next-line
              * @see https://github.com/yiisoft/yii2-queue/pull/502
